@@ -45,9 +45,8 @@ async def create_location_category_reviewed(db: Session, obj_id: int, is_locatio
 
 async def update_reviewed_dates(db: Session, reviewed_combinations):
     try:
-        # Obtener las combinaciones de ubicación-categoría que han sido sugeridas
         for reviewed in reviewed_combinations:
-            # Actualizar el campo last_reviewed_date con la fecha actual
+            # update last_reviewed_date field with current date
             location_uuid = str(reviewed.LocationCategoryReviewed.location_uuid)
             category_uuid = str(reviewed.LocationCategoryReviewed.category_uuid)
 
@@ -55,7 +54,7 @@ async def update_reviewed_dates(db: Session, reviewed_combinations):
                 .filter(LocationCategoryReviewed.location_uuid == location_uuid, LocationCategoryReviewed.category_uuid == category_uuid)\
                 .update({LocationCategoryReviewed.last_reviewed_date: datetime.now()})
         
-        # Confirmar los cambios en la base de datos
+        # Confirm database changes
         db.commit()
     except Exception as e:
         logger.exception(f"Error updating reviewed dates: {e}")
@@ -68,7 +67,7 @@ class CRUDLocationCategoryReviewed(CRUDBase[LocationCategoryReviewed, Recommenda
         thirty_days_ago = datetime.now() - timedelta(days=30)
 
         try:
-            # Obtener todas las combinaciones de ubicación-categoría que no han sido revisadas en los últimos 30 días
+            # Get all location-category combinations that have not been reviewed in the last 30 days.
             unreviewed_combinations = db.query(LocationCategoryReviewed, Category, Location)\
                 .join(Category, LocationCategoryReviewed.category_uuid == Category.uuid)\
                 .join(Location, LocationCategoryReviewed.location_uuid == Location.uuid)\
